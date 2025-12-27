@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://d1v1vji46esks"]
+[gd_scene load_steps=6 format=3 uid="uid://d1v1vji46esks"]
 
 [ext_resource type="Script" uid="uid://5nf7ui5crxh4" path="res://Robot_Stuff/robotMovement.gd" id="1_fqjym"]
 [ext_resource type="Texture2D" uid="uid://g477xefs3ldb" path="res://Robot_Stuff/LittleRobot.png" id="2_6lpek"]
@@ -6,6 +6,10 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e2o6t"]
 size = Vector2(35.28013, 56.270206)
+
+[sub_resource type="Curve" id="Curve_fqjym"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 0.47191018), 0.0, 0.0, 0, 0]
+point_count = 2
 
 [node name="CharacterBody2D" type="CharacterBody2D" groups=["player"]]
 collision_mask = 7
@@ -21,3 +25,8 @@ texture = ExtResource("2_6lpek")
 
 [node name="AIController2D" type="Node2D" parent="."]
 script = ExtResource("3_hcdxu")
+
+[node name="Line2D" type="Line2D" parent="."]
+top_level = true
+points = PackedVector2Array(-1, -2)
+width_curve = SubResource("Curve_fqjym")
