@@ -13,7 +13,7 @@ size = Vector2(15.995031, 63.94689)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
-[node name="Platform" type="StaticBody2D" parent="."]
+[node name="Platform" type="StaticBody2D" parent="." groups=["platform"]]
 collision_layer = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform"]
@@ -28,7 +28,7 @@ texture = ExtResource("1_7jktm")
 centered = false
 offset = Vector2(-80, 0)
 
-[node name="Platform2" type="StaticBody2D" parent="."]
+[node name="Platform2" type="StaticBody2D" parent="." groups=["platform"]]
 process_mode = 4
 visible = false
 position = Vector2(0, 62.324707)
@@ -53,9 +53,6 @@ automatic_missiles = true
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("5_7jktm")
-control_mode = 0
 
 [node name="Robot" parent="." instance=ExtResource("4_7jktm")]
 position = Vector2(0, 50.7511)
-
-[node name="RayCastContainer" type="Node2D" parent="."]

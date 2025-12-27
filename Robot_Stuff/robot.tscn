@@ -11,6 +11,7 @@ size = Vector2(35.28013, 56.270206)
 [node name="CharacterBody2D" type="CharacterBody2D" groups=["player"]]
 collision_mask = 7
 script = ExtResource("1_fqjym")
+player_control = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1.0916777)
@@ -30,3 +31,69 @@ scale = Vector2(2.5, 2.5)
 texture = ExtResource("4_6lpek")
 hframes = 10
 vframes = 5
+
+[node name="RayCastContainer" type="Node2D" parent="."]
+
+[node name="Ray_0" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(500, 0)
+collide_with_areas = true
+
+[node name="Ray_1" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(461.93976, 191.34172)
+collide_with_areas = true
+
+[node name="Ray_2" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(353.55338, 353.55338)
+collide_with_areas = true
+
+[node name="Ray_3" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(191.34172, 461.93976)
+collide_with_areas = true
+
+[node name="Ray_4" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(-2.1855694e-05, 500)
+collide_with_areas = true
+
+[node name="Ray_5" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(-191.3417, 461.9398)
+collide_with_areas = true
+
+[node name="Ray_6" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(-353.55338, 353.55338)
+collide_with_areas = true
+
+[node name="Ray_7" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(-461.93976, 191.34174)
+collide_with_areas = true
+
+[node name="Ray_8" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(-500, -4.371139e-05)
+collide_with_areas = true
+
+[node name="Ray_9" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(-461.93976, -191.34172)
+collide_with_areas = true
+
+[node name="Ray_10" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(-353.5534, -353.55334)
+collide_with_areas = true
+
+[node name="Ray_11" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(-191.34178, -461.93976)
+collide_with_areas = true
+
+[node name="Ray_12" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(5.9624404e-06, -500)
+collide_with_areas = true
+
+[node name="Ray_13" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(191.3418, -461.93973)
+collide_with_areas = true
+
+[node name="Ray_14" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(353.5533, -353.55344)
+collide_with_areas = true
+
+[node name="Ray_15" type="RayCast2D" parent="RayCastContainer"]
+target_position = Vector2(461.9398, -191.34172)
+collide_with_areas = true
