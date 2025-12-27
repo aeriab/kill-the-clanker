@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://b1r0f2dbde8wt"]
+[gd_scene load_steps=13 format=3 uid="uid://b1r0f2dbde8wt"]
 
-[ext_resource type="Texture2D" uid="uid://deqjenjvfeijf" path="res://Environment_Stuff/Hazard_Stuff/smoke_spritesheet.png" id="1_l5w3k"]
+[ext_resource type="Texture2D" uid="uid://byvwd6gg1ggsm" path="res://Environment_Stuff/Hazard_Stuff/smoke_spritesheet1.png" id="1_2l8jj"]
+[ext_resource type="Script" uid="uid://ce7rikuofy0q4" path="res://Environment_Stuff/Hazard_Stuff/explosion.gd" id="2_2l8jj"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2l8jj"]
 particles_animation = true
@@ -15,26 +16,55 @@ point_count = 2
 [sub_resource type="CurveTexture" id="CurveTexture_2l8jj"]
 curve = SubResource("Curve_l5w3k")
 
+[sub_resource type="Gradient" id="Gradient_2l8jj"]
+offsets = PackedFloat32Array(0, 0.14950167, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.41981336, 0.41981307, 0.4198131, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_7ub36"]
+gradient = SubResource("Gradient_2l8jj")
+
+[sub_resource type="Curve" id="Curve_7ub36"]
+_limits = [-1.0, 1.0, 0.0, 1.0]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, -1), -6.1477413, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_4507v"]
+curve = SubResource("Curve_7ub36")
+
+[sub_resource type="Curve" id="Curve_2l8jj"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.18028168, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.7144415, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_7ub36"]
+curve = SubResource("Curve_2l8jj")
+
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_7ub36"]
-lifetime_randomness = 0.5
+lifetime_randomness = 1.0
 particle_flag_disable_z = true
 angle_min = -179.99998
 angle_max = 180.00002
 spread = 180.0
-initial_velocity_min = 0.29999998
-initial_velocity_max = 4.0
+initial_velocity_min = 100.0
+initial_velocity_max = 250.0
+angular_velocity_min = -180.00002
+angular_velocity_max = 179.99998
 gravity = Vector3(0, 3, 0)
-scale_min = 0.099999994
-scale_max = 0.14999999
+scale_min = 0.5
+scale_max = 1.5
+scale_curve = SubResource("CurveTexture_7ub36")
+color_ramp = SubResource("GradientTexture1D_7ub36")
 alpha_curve = SubResource("CurveTexture_2l8jj")
+hue_variation_curve = SubResource("CurveTexture_4507v")
 anim_offset_max = 0.5
 
 [node name="Explosion" type="GPUParticles2D"]
 material = SubResource("CanvasItemMaterial_2l8jj")
 emitting = false
 amount = 20
-texture = ExtResource("1_l5w3k")
+texture = ExtResource("1_2l8jj")
+lifetime = 0.8
 one_shot = true
-explosiveness = 1.0
-randomness = 0.5
+explosiveness = 0.95
+randomness = 1.0
 process_material = SubResource("ParticleProcessMaterial_7ub36")
+script = ExtResource("2_2l8jj")

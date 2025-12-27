@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deqjenjvfeijf"
-path="res://.godot/imported/smoke_spritesheet.png-80320da37e6ec9f5bcd03a3fa708b6c6.ctex"
+uid="uid://byvwd6gg1ggsm"
+path="res://.godot/imported/smoke_spritesheet1.png-d464ee9aa6b31b9a675a43f691f3ae4a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Environment_Stuff/Hazard_Stuff/smoke_spritesheet.png"
-dest_files=["res://.godot/imported/smoke_spritesheet.png-80320da37e6ec9f5bcd03a3fa708b6c6.ctex"]
+source_file="res://Environment_Stuff/Hazard_Stuff/smoke_spritesheet1.png"
+dest_files=["res://.godot/imported/smoke_spritesheet1.png-d464ee9aa6b31b9a675a43f691f3ae4a.ctex"]
 
 [params]
 
