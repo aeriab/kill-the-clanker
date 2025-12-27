@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://csr0kyi1cept7"
-path="res://.godot/imported/CenterPlatform.png-f32fa37e0740b7752d56d8e8cfb8f4bd.ctex"
+uid="uid://cr3w8hrwyol7d"
+path="res://.godot/imported/cartoon-missile.png-62acd269b5dfd02910f76f2813a5cf4b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://CenterPlatform.png"
-dest_files=["res://.godot/imported/CenterPlatform.png-f32fa37e0740b7752d56d8e8cfb8f4bd.ctex"]
+source_file="res://Environment_Stuff/Hazard_Stuff/cartoon-missile.png"
+dest_files=["res://.godot/imported/cartoon-missile.png-62acd269b5dfd02910f76f2813a5cf4b.ctex"]
 
 [params]
 

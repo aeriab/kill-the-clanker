@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://df8fuxsh8e2py"]
+[gd_scene load_steps=7 format=3 uid="uid://df8fuxsh8e2py"]
 
-[ext_resource type="Texture2D" uid="uid://csr0kyi1cept7" path="res://CenterPlatform.png" id="1_80nbo"]
-[ext_resource type="Texture2D" uid="uid://g477xefs3ldb" path="res://LittleRobot.png" id="2_e2o6t"]
-[ext_resource type="Script" uid="uid://5nf7ui5crxh4" path="res://robotMovement.gd" id="2_feb5d"]
+[ext_resource type="Texture2D" uid="uid://csr0kyi1cept7" path="res://Environment_Stuff/Platform_Stuff/CenterPlatform.png" id="1_80nbo"]
+[ext_resource type="Texture2D" uid="uid://g477xefs3ldb" path="res://Robot_Stuff/LittleRobot.png" id="2_e2o6t"]
+[ext_resource type="Script" uid="uid://5nf7ui5crxh4" path="res://Robot_Stuff/robotMovement.gd" id="2_feb5d"]
+[ext_resource type="PackedScene" uid="uid://byf4ceiehxix5" path="res://Environment_Stuff/Hazard_Stuff/missile.tscn" id="4_fc0e3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_feb5d"]
 size = Vector2(15.995031, 63.94689)
@@ -54,3 +55,5 @@ shape = SubResource("RectangleShape2D_e2o6t")
 [node name="LittleRobot" type="Sprite2D" parent="CharacterBody2D"]
 scale = Vector2(2.5, 2.5)
 texture = ExtResource("2_e2o6t")
+
+[node name="Missile" parent="." instance=ExtResource("4_fc0e3")]
