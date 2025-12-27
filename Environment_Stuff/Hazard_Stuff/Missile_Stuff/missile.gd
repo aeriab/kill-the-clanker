@@ -50,7 +50,7 @@ func explode():
 			player.velocity += push_dir * max_knockback * force_percent
 	
 	# --- SPAWN VISUALS ---
-	if explosion_vfx:
+	if Global.use_particles and explosion_vfx:
 		# 1. The Smoke (Base Explosion)
 		var smoke_part = explosion_vfx.instantiate()
 		get_tree().root.add_child(smoke_part)

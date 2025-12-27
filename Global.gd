@@ -1,5 +1,17 @@
 extends Node
 
+
+
+var use_particles: bool = false
+
+
+
+
+
+
+
+
+
 # This script will be active across all scenes because it's an Autoload.
 
 func _unhandled_input(event):

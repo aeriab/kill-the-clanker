@@ -8,11 +8,10 @@ extends Node2D
 @export var off_screen_margin: float = 100.0 
 
 # --- DIFFICULTY RAMP ---
-# Missiles start slow and get faster over time
 @export_group("Difficulty Settings")
-@export var max_spawn_rate: float = 1.0  # Start here (e.g., 1 missile every 2s)
-@export var min_spawn_rate: float = 0.1  # Cap here (e.g., 1 missile every 0.5s)
-@export var ramp_duration: float = 10.0  # Seconds to reach max difficulty
+@export var max_spawn_rate: float = 1.0 
+@export var min_spawn_rate: float = 0.1 
+@export var ramp_duration: float = 10.0 
 
 # --- STATE ---
 var is_dragging = false
@@ -24,36 +23,30 @@ var difficulty_time_elapsed: float = 0.0
 var current_spawn_rate: float = 2.0
 
 func _ready():
-	# Register to group so Player.gd can find us easily to call reset_difficulty()
 	add_to_group("spawners")
-	
-	# Initial setup
 	reset_difficulty()
 	
-	# Warm up shaders slightly later to ensure camera/viewport is ready
-	call_deferred("_warm_up_shaders")
+	# Only warm up shaders if particles are actually enabled
+	if Global.use_particles:
+		call_deferred("_warm_up_shaders")
 
 func _warm_up_shaders():
 	print("WARMING UP SHADERS: Spawning dummy explosions...")
 	
-	# 1. Warm up the BASE Smoke (Standard Material)
 	var dummy_smoke = explosion_cache.instantiate()
 	get_tree().root.add_child(dummy_smoke)
-	dummy_smoke.global_position = Vector2(0, 200) # Visible spot
-	dummy_smoke.modulate.a = 0.01 # Nearly invisible, but still rendered
+	dummy_smoke.global_position = Vector2(0, 200) 
+	dummy_smoke.modulate.a = 0.01 
 	dummy_smoke.emitting = true
 	
-	# 2. Warm up the FIRE Core (Duplicated Material)
-	# We must simulate exactly what the Missile script does: duplicating the material
 	var dummy_fire = explosion_cache.instantiate()
 	get_tree().root.add_child(dummy_fire)
 	dummy_fire.global_position = Vector2(50, 200) 
 	dummy_fire.modulate.a = 0.01
 	
-	# FORCE MATERIAL DUPLICATION (This fixes the specific stutter you had!)
 	var fire_mat = dummy_fire.process_material.duplicate()
 	dummy_fire.process_material = fire_mat
-	fire_mat.color = Color(1, 0.5, 0.1) # The orange color used in actual game
+	fire_mat.color = Color(1, 0.5, 0.1) 
 	
 	dummy_fire.emitting = true
 
@@ -71,22 +64,15 @@ func _process(delta):
 	queue_redraw()
 	
 	if automatic_missiles:
-		# 1. Update Difficulty Timer
 		difficulty_time_elapsed += delta
-		
-		# Calculate how far along the ramp we are (0.0 to 1.0)
 		var t = clamp(difficulty_time_elapsed / ramp_duration, 0.0, 1.0)
-		
-		# Smoothly interpolate the spawn rate
 		current_spawn_rate = lerp(max_spawn_rate, min_spawn_rate, t)
 		
-		# 2. Handle Spawning
 		spawn_timer += delta
 		if spawn_timer >= current_spawn_rate:
 			spawn_timer = 0.0
 			attempt_auto_spawn()
 
-# Call this from Player.gd -> game_over() or reset()
 func reset_difficulty():
 	difficulty_time_elapsed = 0.0
 	spawn_timer = 0.0
@@ -96,17 +82,14 @@ func attempt_auto_spawn():
 	var player = get_tree().get_first_node_in_group("player")
 	if not player: return
 
-	# Random Angle Logic
-	var random_angle = randf_range(0, TAU) # TAU is 2*PI (full circle)
+	var random_angle = randf_range(0, TAU)
 	var direction = Vector2.from_angle(random_angle)
 	
 	var cam_rect = get_active_camera_rect()
 	
-	# Calculate Spawn Point (Behind Player relative to direction)
 	var dist_back = get_distance_to_edge(player.global_position, -direction, cam_rect)
 	var spawn_pos = player.global_position - (direction * (dist_back + off_screen_margin))
 	
-	# Calculate Explode Point (Ahead of Player relative to direction)
 	var dist_fwd = get_distance_to_edge(player.global_position, direction, cam_rect)
 	var explode_pos = player.global_position + (direction * (dist_fwd + off_screen_margin))
 	
@@ -128,6 +111,12 @@ func calculate_and_fire(p1: Vector2, p2: Vector2):
 
 func spawn_missile(pos, dir, death_pos):
 	var missile = missile_scene.instantiate()
+	
+	# Pass the "Global.use_particles" setting to the missile
+	# (The check 'in missile' prevents crashing if you haven't updated Missile.gd yet)
+	if "Global.use_particles" in missile:
+		missile.Global.use_particles = Global.use_particles
+		
 	get_tree().root.add_child(missile)
 	missile.launch(pos, dir, death_pos)
 
