@@ -18,11 +18,11 @@ extends CharacterBody2D
 @onready var ai_controller = get_node_or_null("AIController2D")
 var start_position : Vector2
 
-# --- VISUALS ---
-# [CHANGED] We no longer need a reference to a single $Line2D child.
-# Instead, we define how the spawned segments behave.
-@export var max_speed_visual: float = 800.0
-@export var trail_min_speed: float = 400.0 
+
+@onready var trail_scene =  preload("res://Robot_Stuff/trail_segment.tscn")
+@export var max_speed_visual: float = 1200.0
+@export var trail_min_speed: float = 600.0
+
 @export var trail_fade_time: float = 0.3  # How long a segment lasts
 
 # --- STATE ---
@@ -89,12 +89,10 @@ func _physics_process(delta):
 	# 8. PHYSICS UPDATE
 	move_and_slide()
 	
-	# 9. TRAIL LOGIC (Totally Redone)
-	# We check if we are moving fast enough AND if we actually moved this frame
+	# 9. TRAIL LOGIC (Updated for Instancing)
 	if velocity.length() > trail_min_speed and global_position.distance_to(last_position) > 1.0:
 		spawn_trail_segment()
 	
-	# Update last_position for the next frame
 	last_position = global_position
 	
 	# 10. DEATH CHECK
@@ -102,28 +100,31 @@ func _physics_process(delta):
 		game_over()
 
 func spawn_trail_segment():
-	# 1. Create a new temporary Line2D
-	var segment = Line2D.new()
-	segment.top_level = true # Independent of player movement
+	if trail_scene == null:
+		return
+
+	var segment = trail_scene.instantiate()
+	segment.clear_points()
+	segment.top_level = true 
+	segment.global_position = Vector2.ZERO
+
 	segment.add_point(last_position)
 	segment.add_point(global_position)
-	
-	# 2. Style it based on speed
-	var speed_ratio = clamp(velocity.length() / max_speed_visual, 0.0, 1.0)
-	segment.default_color = Color.WHITE.lerp(Color(0, 0.5, 1, 1), speed_ratio)
-	segment.width = lerp(5.0, 12.0, speed_ratio)
-	
-	# Optional: Make joints round so segments connect smoothly
-	segment.begin_cap_mode = Line2D.LINE_CAP_ROUND
-	segment.end_cap_mode = Line2D.LINE_CAP_ROUND
-	
-	# 3. Add to the main scene (not the player, so it doesn't move with us)
+
+	# 1. Remap speed to a 0.0 - 1.0 range based on your Min and Max thresholds
+	# if velocity == trail_min_speed -> returns 0.0
+	# if velocity == max_speed_visual -> returns 1.0
+	var speed_ratio = clamp(inverse_lerp(trail_min_speed, max_speed_visual, velocity.length()), 0.0, 1.0)
+
+	# 2. Width: 0px -> 10px
+	segment.width = lerp(0.0, 4.0, speed_ratio)
+	# 3. Color: Transparent White -> Opaque Light Blue
+	# Color(r, g, b, alpha)
+	var start_color = Color(1, 1, 1, 0)      # White, completely transparent
+	var end_color   = Color(0.2, 0.8, 1, 0.5)  # Light Blue, fully opaque
+	segment.default_color = start_color.lerp(end_color, speed_ratio)
 	get_parent().add_child(segment)
-	
-	# 4. Animate it fading out and then delete it
-	var tween = get_tree().create_tween()
-	tween.tween_property(segment, "modulate:a", 0.0, trail_fade_time)
-	tween.tween_callback(segment.queue_free)
+
 
 func start_dash():
 	can_dash = false

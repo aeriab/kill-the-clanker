@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://blrm6lcenja3h"]
+
+[ext_resource type="Script" uid="uid://n7xgq8nvinn7" path="res://Robot_Stuff/trail_segment.gd" id="1_rdc8n"]
+
+[node name="TrailSegment" type="Line2D"]
+z_index = -1
+points = PackedVector2Array(-19, -21)
+width = 4.0
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("1_rdc8n")
