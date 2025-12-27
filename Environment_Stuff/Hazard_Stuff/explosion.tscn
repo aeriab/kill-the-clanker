@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://b1r0f2dbde8wt"]
+
+[ext_resource type="Texture2D" uid="uid://deqjenjvfeijf" path="res://Environment_Stuff/Hazard_Stuff/smoke_spritesheet.png" id="1_l5w3k"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2l8jj"]
+particles_animation = true
+particles_anim_h_frames = 4
+particles_anim_v_frames = 6
+particles_anim_loop = false
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_7ub36"]
+particle_flag_disable_z = true
+angle_min = -179.99998
+angle_max = 180.00002
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.099999994
+scale_max = 0.14999999
+anim_offset_max = 1.0
+
+[node name="Explosion" type="GPUParticles2D"]
+material = SubResource("CanvasItemMaterial_2l8jj")
+amount = 1
+texture = ExtResource("1_l5w3k")
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_7ub36")

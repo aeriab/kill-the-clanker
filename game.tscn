@@ -31,6 +31,8 @@ centered = false
 offset = Vector2(-8, 0)
 
 [node name="Platform2" type="StaticBody2D" parent="."]
+process_mode = 4
+visible = false
 position = Vector2(0, 62.324707)
 scale = Vector2(6.518025, 1.3924433)
 collision_layer = 2
