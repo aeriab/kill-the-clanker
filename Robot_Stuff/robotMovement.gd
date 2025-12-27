@@ -136,4 +136,5 @@ func reset_player():
 	dash_timer = 0.0
 	
 	# TODO: You should also clear hazards here!
+	get_tree().call_group("spawners", "reset_difficulty")
 	get_tree().call_group("missiles", "queue_free")

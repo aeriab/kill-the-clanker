@@ -27,6 +27,7 @@ enabled=PackedStringArray("res://addons/godot_rl_agents/plugin.cfg")
 
 player=""
 missiles=""
+spawners=""
 
 [input]
 

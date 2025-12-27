@@ -19,5 +19,5 @@ shape = SubResource("RectangleShape2D_e2o6t")
 scale = Vector2(2.5, 2.5)
 texture = ExtResource("2_6lpek")
 
-[node name="AIController2D" type="Node" parent="."]
+[node name="AIController2D" type="Node2D" parent="."]
 script = ExtResource("3_hcdxu")

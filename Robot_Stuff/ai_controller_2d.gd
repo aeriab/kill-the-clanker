@@ -2,7 +2,8 @@ extends AIController2D
 
 # References
 @onready var player = get_parent()
-@onready var raycast_container = $"../RayCastContainer" # We will make this in Step 4
+#@onready var raycast_container = $"../RayCastContainer" # We will make this in Step 4
+@onready var raycast_container: Node2D = $"../../RayCastContainer"
 
 # --- 1. OBSERVATION (The Eyes) ---
 # We must return a Dictionary with a key "obs" containing an Array of numbers.
