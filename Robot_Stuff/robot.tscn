@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://d1v1vji46esks"]
+[gd_scene load_steps=6 format=3 uid="uid://d1v1vji46esks"]
 
 [ext_resource type="Script" uid="uid://5nf7ui5crxh4" path="res://Robot_Stuff/robotMovement.gd" id="1_fqjym"]
 [ext_resource type="Texture2D" uid="uid://g477xefs3ldb" path="res://Robot_Stuff/LittleRobot.png" id="2_6lpek"]
 [ext_resource type="Script" uid="uid://bllq6a5wlhgy2" path="res://Robot_Stuff/ai_controller_2d.gd" id="3_hcdxu"]
+[ext_resource type="Texture2D" uid="uid://byco5f3lwu85c" path="res://Robot_Stuff/RobotSpritesheet.png" id="4_6lpek"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e2o6t"]
 size = Vector2(35.28013, 56.270206)
@@ -16,8 +17,16 @@ position = Vector2(0, 1.0916777)
 shape = SubResource("RectangleShape2D_e2o6t")
 
 [node name="LittleRobot" type="Sprite2D" parent="."]
+visible = false
 scale = Vector2(2.5, 2.5)
 texture = ExtResource("2_6lpek")
 
 [node name="AIController2D" type="Node2D" parent="."]
 script = ExtResource("3_hcdxu")
+
+[node name="RobotSpritesheet" type="Sprite2D" parent="."]
+position = Vector2(9.536743e-07, 2.3841858e-07)
+scale = Vector2(2.5, 2.5)
+texture = ExtResource("4_6lpek")
+hframes = 10
+vframes = 5

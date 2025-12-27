@@ -18,18 +18,19 @@ extends CharacterBody2D
 @onready var ai_controller = get_node_or_null("AIController2D")
 var start_position : Vector2
 
-
-@onready var trail_scene =  preload("res://Robot_Stuff/trail_segment.tscn")
+# --- VISUALS ---
+@onready var sprite: Sprite2D = $RobotSpritesheet
+@onready var trail_scene = preload("uid://blrm6lcenja3h")
 @export var max_speed_visual: float = 1200.0
 @export var trail_min_speed: float = 600.0
-
-@export var trail_fade_time: float = 0.3  # How long a segment lasts
+@export var trail_fade_time: float = 0.3
 
 # --- STATE ---
 var can_dash = true
 var is_dashing = false
 var dash_timer = 0.0
-var last_position: Vector2 # [NEW] To track where we were last frame
+var last_position: Vector2 
+var anim_timer = 0.0
 
 # --- INPUT SIGNALS ---
 var input_x = 0.0
@@ -40,7 +41,7 @@ var input_dash = false
 
 func _ready():
 	start_position = global_position
-	last_position = global_position # Initialize to prevent jump on spawn
+	last_position = global_position 
 
 func _physics_process(delta):
 	# 1. AI RESET HANDLING
@@ -89,13 +90,17 @@ func _physics_process(delta):
 	# 8. PHYSICS UPDATE
 	move_and_slide()
 	
-	# 9. TRAIL LOGIC (Updated for Instancing)
+	# 9. TRAIL LOGIC 
+	# Only spawn if fast enough AND moved far enough
 	if velocity.length() > trail_min_speed and global_position.distance_to(last_position) > 1.0:
 		spawn_trail_segment()
 	
 	last_position = global_position
 	
-	# 10. DEATH CHECK
+	# 10. ANIMATION LOGIC
+	_update_animation_logic(delta)
+	
+	# 11. DEATH CHECK
 	if global_position.y > 1000:
 		game_over()
 
@@ -104,6 +109,8 @@ func spawn_trail_segment():
 		return
 
 	var segment = trail_scene.instantiate()
+	
+	# Important: clear points and set top_level to prevent artifacts
 	segment.clear_points()
 	segment.top_level = true 
 	segment.global_position = Vector2.ZERO
@@ -111,20 +118,58 @@ func spawn_trail_segment():
 	segment.add_point(last_position)
 	segment.add_point(global_position)
 
-	# 1. Remap speed to a 0.0 - 1.0 range based on your Min and Max thresholds
-	# if velocity == trail_min_speed -> returns 0.0
-	# if velocity == max_speed_visual -> returns 1.0
+	# Calculate speed ratio (0.0 to 1.0) based on min/max threshold
 	var speed_ratio = clamp(inverse_lerp(trail_min_speed, max_speed_visual, velocity.length()), 0.0, 1.0)
 
-	# 2. Width: 0px -> 10px
-	segment.width = lerp(0.0, 4.0, speed_ratio)
-	# 3. Color: Transparent White -> Opaque Light Blue
-	# Color(r, g, b, alpha)
-	var start_color = Color(1, 1, 1, 0)      # White, completely transparent
-	var end_color   = Color(0.2, 0.8, 1, 0.5)  # Light Blue, fully opaque
+	# Width: 0px -> 10px
+	segment.width = lerp(0.0, 10.0, speed_ratio)
+	
+	# Color: Transparent White -> Opaque Light Blue
+	var start_color = Color(1, 1, 1, 0)      # White, transparent
+	var end_color   = Color(0.2, 0.8, 1, 1)  # Light Blue, opaque
 	segment.default_color = start_color.lerp(end_color, speed_ratio)
+	
 	get_parent().add_child(segment)
 
+func _update_animation_logic(delta):
+	# 1. HANDLE ROW (Dash Availability)
+	# Row 0 (Top) if dash is ready, Row 1 (Bottom) if cooldown
+	sprite.frame_coords.y = 0 if can_dash else 1
+
+	# 2. HANDLE COLUMN (Movement State)
+	var start_col = 0
+	var end_col = 1
+	var anim_speed = 0.5 
+	
+	if not is_on_floor():
+		# Falling/Jumping: Columns 7-8 (Indices 6-7)
+		start_col = 6
+		end_col = 7
+		anim_speed = 0.1
+	elif abs(velocity.x) > 10:
+		# Running: Columns 3-6 (Indices 2-5)
+		start_col = 2
+		end_col = 5
+		anim_speed = 0.15
+	else:
+		# Standing Still: Columns 1-2 (Indices 0-1)
+		start_col = 0
+		end_col = 1
+		anim_speed = 0.8 
+
+	# 3. CYCLE THE ANIMATION
+	anim_timer += delta
+	if anim_timer > anim_speed:
+		anim_timer = 0
+		sprite.frame_coords.x += 1
+	
+	# Loop within the designated range
+	if sprite.frame_coords.x > end_col or sprite.frame_coords.x < start_col:
+		sprite.frame_coords.x = start_col
+
+	# 4. FACE DIRECTION (Flip Sprite)
+	if input_x != 0:
+		sprite.flip_h = input_x < 0
 
 func start_dash():
 	can_dash = false
@@ -138,16 +183,28 @@ func start_dash():
 	velocity = dash_vector * DASH_SPEED
 
 func _get_player_input():
-	input_x = Input.get_axis("ui_left", "ui_right")
-	input_y = Input.get_axis("ui_up", "ui_down") 
-	input_jump_pressed = Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("ui_up")
-	input_jump_held = Input.is_action_pressed("ui_accept") or Input.is_action_pressed("ui_up")
+	# 1. Axis Movement (DIRECTION ONLY)
+	# "up" maps ONLY to the Up Arrow. "jump" maps to Space + Up Arrow.
+	# This ensures Spacebar does NOT affect your dash direction.
+	input_x = Input.get_axis("left", "right")
+	input_y = Input.get_axis("up", "down") 
 	
-	if InputMap.has_action("dash"):
-		input_dash = Input.is_action_just_pressed("dash")
+	# 2. Context Sensitive JUMP (Ground Only)
+	# We use the new "jump" map (Space or Up Arrow)
+	if is_on_floor() and Input.is_action_just_pressed("jump"):
+		input_jump_pressed = true
 	else:
-		input_dash = Input.is_key_pressed(KEY_SHIFT) and not is_dashing
-
+		input_jump_pressed = false
+		
+	# Variable Jump Height
+	input_jump_held = Input.is_action_pressed("jump")
+	
+	# 3. Context Sensitive DASH (Air Only)
+	# If you mapped Space to "dash" as well, this ensures it only dashes in the air.
+	if not is_on_floor() and Input.is_action_just_pressed("dash"):
+		input_dash = true
+	else:
+		input_dash = false
 # --- NEW FUNCTIONS FOR AI ---
 
 func game_over():
@@ -160,11 +217,12 @@ func game_over():
 
 func reset_player():
 	global_position = start_position
-	last_position = start_position # [NEW] Reset this so we don't draw a huge line
+	last_position = start_position 
 	velocity = Vector2.ZERO
 	is_dashing = false
 	can_dash = true
 	dash_timer = 0.0
+	anim_timer = 0.0 # Reset animation timer
 	
 	get_tree().call_group("spawners", "reset_difficulty")
 	get_tree().call_group("missiles", "queue_free")

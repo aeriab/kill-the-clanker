@@ -4,8 +4,8 @@ extends Area2D
 
 # --- SETTINGS ---
 @export var speed = 600.0
-@export var blast_radius = 250.0  
-@export var max_knockback = 1500.0 
+@export var blast_radius = 100.0  
+@export var max_knockback = 1800.0 
 
 var velocity = Vector2.ZERO
 
