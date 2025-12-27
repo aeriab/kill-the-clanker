@@ -52,6 +52,7 @@ automatic_missiles = true
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("5_7jktm")
+control_mode = 0
 
 [node name="Robot" parent="." instance=ExtResource("4_7jktm")]
 position = Vector2(0, 50.7511)
