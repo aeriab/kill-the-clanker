@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://csr0kyi1cept7" path="res://Environment_Stuff/Platform_Stuff/CenterPlatform.png" id="1_80nbo"]
 [ext_resource type="PackedScene" uid="uid://d1v1vji46esks" path="res://Robot_Stuff/robot.tscn" id="4_7jktm"]
-[ext_resource type="Script" uid="uid://c66u4wpa87wol" path="res://Environment_Stuff/Hazard_Stuff/missile_handler.gd" id="4_fc0e3"]
+[ext_resource type="Script" uid="uid://c66u4wpa87wol" path="res://Environment_Stuff/Hazard_Stuff/Missile_Stuff/missile_handler.gd" id="4_fc0e3"]
 [ext_resource type="Script" uid="uid://bmaifkhwsldkj" path="res://addons/godot_rl_agents/sync.gd" id="5_7jktm"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_feb5d"]

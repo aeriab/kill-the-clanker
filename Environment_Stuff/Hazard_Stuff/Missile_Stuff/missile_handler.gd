@@ -1,6 +1,6 @@
 extends Node2D
 
-@onready var missile_scene = preload("res://Environment_Stuff/Hazard_Stuff/missile.tscn")
+@onready var missile_scene = preload("res://Environment_Stuff/Hazard_Stuff/Missile_Stuff/missile.tscn")
 @onready var explosion_cache = preload("res://Environment_Stuff/Hazard_Stuff/explosion.tscn")
 
 # --- SETTINGS ---
