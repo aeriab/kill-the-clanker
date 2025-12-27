@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://b1r0f2dbde8wt"]
+[gd_scene load_steps=6 format=3 uid="uid://b1r0f2dbde8wt"]
 
 [ext_resource type="Texture2D" uid="uid://deqjenjvfeijf" path="res://Environment_Stuff/Hazard_Stuff/smoke_spritesheet.png" id="1_l5w3k"]
 
@@ -8,19 +8,33 @@ particles_anim_h_frames = 4
 particles_anim_v_frames = 6
 particles_anim_loop = false
 
+[sub_resource type="Curve" id="Curve_l5w3k"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.3113372, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_2l8jj"]
+curve = SubResource("Curve_l5w3k")
+
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_7ub36"]
+lifetime_randomness = 0.5
 particle_flag_disable_z = true
 angle_min = -179.99998
 angle_max = 180.00002
 spread = 180.0
-gravity = Vector3(0, 0, 0)
+initial_velocity_min = 0.29999998
+initial_velocity_max = 4.0
+gravity = Vector3(0, 3, 0)
 scale_min = 0.099999994
 scale_max = 0.14999999
-anim_offset_max = 1.0
+alpha_curve = SubResource("CurveTexture_2l8jj")
+anim_offset_max = 0.5
 
 [node name="Explosion" type="GPUParticles2D"]
 material = SubResource("CanvasItemMaterial_2l8jj")
-amount = 1
+emitting = false
+amount = 20
 texture = ExtResource("1_l5w3k")
+one_shot = true
 explosiveness = 1.0
+randomness = 0.5
 process_material = SubResource("ParticleProcessMaterial_7ub36")
