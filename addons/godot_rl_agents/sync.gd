@@ -12,7 +12,7 @@ enum ControlModes {
 ## Action will be repeated for n frames (Godot physics steps).
 @export_range(1, 10, 1, "or_greater") var action_repeat := 8
 ## Speeds up the physics in the environment to enable faster training.
-@export_range(0, 10, 0.1, "or_greater") var speed_up := 1.0
+@export_range(0, 20, 0.1, "or_greater") var speed_up := 1.0
 ## The path to a trained .onnx model file to use for inference (only needed for the 'Onnx Inference' control mode).
 @export var onnx_model_path := ""
 ## Whether the inference will be deterministic (NOTE: Only applies to discrete actions in onnx inference mode)
