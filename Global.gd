@@ -2,7 +2,7 @@ extends Node
 
 
 
-var use_particles: bool = true
+var use_particles: bool = false
 
 
 

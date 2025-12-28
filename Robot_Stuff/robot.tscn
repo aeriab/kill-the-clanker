@@ -36,64 +36,80 @@ vframes = 5
 
 [node name="Ray_0" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(500, 0)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_1" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(461.93976, 191.34172)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_2" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(353.55338, 353.55338)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_3" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(191.34172, 461.93976)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_4" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(-2.1855694e-05, 500)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_5" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(-191.3417, 461.9398)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_6" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(-353.55338, 353.55338)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_7" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(-461.93976, 191.34174)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_8" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(-500, -4.371139e-05)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_9" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(-461.93976, -191.34172)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_10" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(-353.5534, -353.55334)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_11" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(-191.34178, -461.93976)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_12" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(5.9624404e-06, -500)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_13" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(191.3418, -461.93973)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_14" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(353.5533, -353.55344)
+collision_mask = 6
 collide_with_areas = true
 
 [node name="Ray_15" type="RayCast2D" parent="RayCastContainer"]
 target_position = Vector2(461.9398, -191.34172)
+collision_mask = 6
 collide_with_areas = true
