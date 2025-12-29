@@ -3,109 +3,127 @@ extends AIController2D
 @onready var player = get_parent()
 @onready var raycast_container = $"../RayCastContainer"
 
+# Define the 8 Dash Directions explicitly for easy mapping
+# Godot 2D: Up is (0, -1), Down is (0, 1)
+const DASH_DIRECTIONS = [
+	Vector2.ZERO,      # 0: No Dash
+	Vector2(0, -1),    # 1: Up
+	Vector2(1, -1),    # 2: Up-Right
+	Vector2(1, 0),     # 3: Right
+	Vector2(1, 1),     # 4: Down-Right
+	Vector2(0, 1),     # 5: Down
+	Vector2(-1, 1),    # 6: Down-Left
+	Vector2(-1, 0),    # 7: Left
+	Vector2(-1, -1)    # 8: Up-Left
+]
+
 func get_obs() -> Dictionary:
 	var obs = []
 	
-	# --- 1. PROPRIOCEPTION (Body Awareness) ---
-	
-	# A. Velocity (Normalized)
+	# --- 1. PROPRIOCEPTION ---
 	obs.append(clamp(player.velocity.x / 1000.0, -1.0, 1.0))
 	obs.append(clamp(player.velocity.y / 1000.0, -1.0, 1.0))
-	
-	# B. Global Position (Normalized to Screen Size)
-	# Assuming a 1920x1080 resolution. 0.0 is top/left, 1.0 is bottom/right.
-	var screen_x = 1152.0
-	var screen_y = 648.0
-	obs.append(player.global_position.x / screen_x)
-	obs.append(player.global_position.y / screen_y)
-	
-	# C. Status Flags
+	obs.append(player.global_position.x / 1152.0)
+	obs.append(player.global_position.y / 648.0)
 	obs.append(1.0 if player.is_on_floor() else 0.0)
 	obs.append(1.0 if player.can_dash else 0.0)
 	
-	# --- 2. EXTEROCEPTION (The Eyes) ---
-	# We iterate through all rays. For each ray, we add TWO numbers:
-	# 1. Proximity (How close is it? 0.0 = Far, 1.0 = Touching)
-	# 2. Danger Level (0.0 = Empty/Safe, 1.0 = Hazard)
-	
+	# --- 2. EXTEROCEPTION (Walls) ---
 	for ray in raycast_container.get_children():
 		if ray is RayCast2D:
 			ray.force_raycast_update()
-			
 			if ray.is_colliding():
-				var collider = ray.get_collider()
 				var dist = ray.global_position.distance_to(ray.get_collision_point())
 				var max_len = ray.target_position.length()
-				
-				# Input 1: Proximity (Inverted distance)
 				obs.append(1.0 - (dist / max_len))
-				
-				# Input 2: Object Identity
-				if collider.is_in_group("missiles"):
-					obs.append(1.0) # DANGER!
-				elif collider.is_in_group("platform"):
-					obs.append(-1.0) # Safe / Wall
-				else:
-					obs.append(0.0) # Unknown object
 			else:
-				# Ray hit nothing
-				obs.append(0.0) # Proximity: 0 (Far away)
-				obs.append(0.0) # Identity: 0 (Nothing)
-				
+				obs.append(0.0)
+	
+	# --- 3. OBJECT TRACKING (Missiles) ---
+	var missiles = get_tree().get_nodes_in_group("missiles")
+	missiles.sort_custom(func(a, b): 
+		return a.global_position.distance_squared_to(player.global_position) < b.global_position.distance_squared_to(player.global_position)
+	)
+	
+	var max_targets = 12
+	var sensing_range = 1000.0 
+	
+	for i in range(max_targets):
+		if i < missiles.size() and is_instance_valid(missiles[i]):
+			var m = missiles[i]
+			var rel_pos = m.global_position - player.global_position
+			obs.append(clamp(rel_pos.x / sensing_range, -1.0, 1.0))
+			obs.append(clamp(rel_pos.y / sensing_range, -1.0, 1.0))
+			
+			var m_vel = Vector2.ZERO
+			if "velocity" in m: m_vel = m.velocity
+			obs.append(clamp((m_vel.x) / 1000.0, -1.0, 1.0))
+			obs.append(clamp((m_vel.y) / 1000.0, -1.0, 1.0))
+		else:
+			obs.append(0.0); obs.append(0.0); obs.append(0.0); obs.append(0.0)
+			
 	return {"obs": obs}
 
-# --- 2. REWARD (The Motivation) ---
 func get_reward() -> float:
-	# Basic Survival Reward: +1 point for every frame it stays alive
 	return 1.0
 
-# --- 3. ACTIONS (The Hands) ---
-# The RL brain sends an array of numbers. We map them to player inputs.
+# --- 3. ACTIONS (REVISED) ---
 func get_action_space() -> Dictionary:
 	return {
-		"move_x": {"size": 1, "action_type": "continuous"}, # Float -1 to 1
-		"move_y": {"size": 1, "action_type": "continuous"}, # Float -1 to 1 (for dash aim)
-		"jump":   {"size": 1, "action_type": "discrete"},   # 0 or 1
-		"dash":   {"size": 1, "action_type": "discrete"}    # 0 or 1
+		# Discrete(3) -> 0: Left, 1: Neutral, 2: Right
+		"move_x": {"size": 3, "action_type": "discrete"},
+		
+		# Discrete(2) -> 0: No Jump, 1: Jump
+		"jump":   {"size": 2, "action_type": "discrete"},
+		
+		# Discrete(9) -> 0: No Dash, 1-8: Specific Directions
+		"dash":   {"size": 9, "action_type": "discrete"}
 	}
 
 func set_action(action) -> void:
-	var raw_x = action["move_x"][0]
-	player.input_x = 0.0 if abs(raw_x) < 0.5 else sign(raw_x)
+	# 1. Handle Movement (Discrete Arrow Keys)
+	var move_idx = action["move_x"]
+	match move_idx:
+		0: player.input_x = -1.0 # Left
+		1: player.input_x = 0.0  # Neutral
+		2: player.input_x = 1.0  # Right
 	
-	# REVISED: Add a "Deadzone" to snap aiming to -1, 0, or 1
-	# If the AI output is weak (between -0.5 and 0.5), we treat it as 0 (Neutral)
-	# Otherwise, we snap it to hard -1.0 (Up) or 1.0 (Down)
-	var raw_y = action["move_y"][0]
-	player.input_y = 0.0 if abs(raw_y) < 0.5 else sign(raw_y)
+	# Reset Y input (only used for dashing now)
+	player.input_y = 0.0
 
+	# 2. Handle Jump
 	player.input_jump_pressed = action["jump"] == 1
 	player.input_jump_held = action["jump"] == 1 
-	player.input_dash = action["dash"] == 1
+
+	# 3. Handle Directional Dash
+	var dash_idx = action["dash"]
+	
+	if dash_idx > 0:
+		# If AI wants to dash, we ACTIVATE dash and OVERRIDE inputs
+		player.input_dash = true
+		
+		var direction = DASH_DIRECTIONS[dash_idx]
+		
+		# Force the player inputs to match the dash direction
+		# This ensures the game engine dashes where the AI intends, 
+		# ignoring the 'move_x' walking input for this frame.
+		player.input_x = direction.x
+		player.input_y = direction.y
+	else:
+		player.input_dash = false
 
 
-# --- ADD THESE TO THE BOTTOM OF YOUR SCRIPT ---
-
+# --- DEBUG ---
 func _physics_process(_delta):
-	queue_redraw() # Forces the _draw() function to run every frame
+	queue_redraw()
 
 func _draw():
-	# Loop through the rays just like in get_obs()
 	for ray in raycast_container.get_children():
 		if ray is RayCast2D:
-			# Calculate start and end points in local coordinates
-			var start_pos = to_local(ray.global_position)
-			var end_pos = to_local(ray.global_position + ray.target_position)
-			var color = Color.BLUE # Default: Blue for empty/unknown
-			
+			var start = to_local(ray.global_position)
+			var end = to_local(ray.global_position + ray.target_position)
+			var color = Color.BLUE
 			if ray.is_colliding():
-				var collider = ray.get_collider()
-				end_pos = to_local(ray.get_collision_point()) # Shorten line to hit point
-				
-				if collider.is_in_group("platform"):
-					color = Color.GREEN
-				elif collider.is_in_group("missiles"):
-					color = Color.RED
-			
-			# Draw the line
-			draw_line(start_pos, end_pos, color, 2.0)
+				end = to_local(ray.get_collision_point())
+				color = Color.GREEN
+			draw_line(start, end, color, 2.0)

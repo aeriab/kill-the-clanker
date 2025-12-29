@@ -5,13 +5,19 @@ extends Node2D
 
 # --- SETTINGS ---
 @export var automatic_missiles: bool = false
-@export var off_screen_margin: float = 100.0 
+@export var off_screen_margin: float = 100.0
 
 # --- DIFFICULTY RAMP ---
 @export_group("Difficulty Settings")
-@export var max_spawn_rate: float = 1.0 
-@export var min_spawn_rate: float = 0.1 
-@export var ramp_duration: float = 10.0 
+@export var max_spawn_rate: float = 1.0
+@export var min_spawn_rate: float = 0.05
+@export var ramp_duration: float = 30.0
+
+# --- SPEED SETTINGS (NEW) ---
+@export_group("Speed Settings")
+@export var min_missile_speed: float = 400.0
+@export var max_missile_speed: float = 1200.0
+@export var max_drag_distance: float = 500.0 # Dragging this distance (pixels) results in max speed
 
 # --- STATE ---
 var is_dragging = false
@@ -93,7 +99,9 @@ func attempt_auto_spawn():
 	var dist_fwd = get_distance_to_edge(player.global_position, direction, cam_rect)
 	var explode_pos = player.global_position + (direction * (dist_fwd + off_screen_margin))
 	
-	spawn_missile(spawn_pos, direction, explode_pos)
+	# REVISED: Pick a random speed for automatic missiles
+	var speed = randf_range(min_missile_speed, max_missile_speed)
+	spawn_missile(spawn_pos, direction, explode_pos, speed)
 
 func calculate_and_fire(p1: Vector2, p2: Vector2):
 	var direction = (p2 - p1).normalized()
@@ -107,15 +115,23 @@ func calculate_and_fire(p1: Vector2, p2: Vector2):
 	var dist_to_explode_edge = get_distance_to_edge(p2, direction, camera_rect)
 	var explode_pos = p2 + (direction * (dist_to_explode_edge + off_screen_margin))
 	
-	spawn_missile(spawn_pos, direction, explode_pos)
+	# REVISED: Calculate speed based on the drag length
+	var drag_len = p1.distance_to(p2)
+	var t = clamp(drag_len / max_drag_distance, 0.0, 1.0)
+	var speed = lerp(min_missile_speed, max_missile_speed, t)
+	
+	spawn_missile(spawn_pos, direction, explode_pos, speed)
 
-func spawn_missile(pos, dir, death_pos):
+# REVISED: Added 'speed' parameter
+func spawn_missile(pos, dir, death_pos, speed):
 	var missile = missile_scene.instantiate()
 	
 	# Pass the "Global.use_particles" setting to the missile
-	# (The check 'in missile' prevents crashing if you haven't updated Missile.gd yet)
 	if "Global.use_particles" in missile:
 		missile.Global.use_particles = Global.use_particles
+	
+	# Apply the custom speed
+	missile.speed = speed
 		
 	get_tree().root.add_child(missile)
 	missile.launch(pos, dir, death_pos)
