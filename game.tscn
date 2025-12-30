@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://df8fuxsh8e2py"]
+[gd_scene load_steps=8 format=3 uid="uid://df8fuxsh8e2py"]
 
 [ext_resource type="Texture2D" uid="uid://cnn8pwcdufp1x" path="res://Environment_Stuff/Platform_Stuff/FancyPlatform.png" id="1_7jktm"]
 [ext_resource type="Texture2D" uid="uid://csr0kyi1cept7" path="res://Environment_Stuff/Platform_Stuff/CenterPlatform.png" id="1_80nbo"]
 [ext_resource type="PackedScene" uid="uid://d1v1vji46esks" path="res://Robot_Stuff/robot.tscn" id="4_7jktm"]
 [ext_resource type="Script" uid="uid://c66u4wpa87wol" path="res://Environment_Stuff/Hazard_Stuff/Missile_Stuff/missile_handler.gd" id="4_fc0e3"]
 [ext_resource type="Script" uid="uid://bmaifkhwsldkj" path="res://addons/godot_rl_agents/sync.gd" id="5_7jktm"]
+[ext_resource type="Texture2D" uid="uid://b273dintn43ju" path="res://Environment_Stuff/KTC-Background.png" id="6_ryrav"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_feb5d"]
 size = Vector2(15.995031, 63.94689)
@@ -54,7 +55,14 @@ automatic_missiles = true
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("5_7jktm")
 action_repeat = 4
+speed_up = 20.0
 
 [node name="Robot" parent="." instance=ExtResource("4_7jktm")]
 position = Vector2(0, 50.7511)
 player_control = false
+
+[node name="KtcBackground" type="Sprite2D" parent="."]
+z_index = -50
+position = Vector2(0, -265.25537)
+scale = Vector2(4, 4)
+texture = ExtResource("6_ryrav")
