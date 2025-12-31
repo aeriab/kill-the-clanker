@@ -70,10 +70,10 @@ func get_obs() -> Dictionary:
 	return {"obs": obs}
 
 func get_reward() -> float:
-	var reward = 1.0
+	var reward_placeholder = 1.0
 	if player.can_dash:
-		reward += 0.7
-	return reward
+		reward_placeholder += 0.7
+	return reward_placeholder
 
 # --- 3. ACTIONS (REVISED) ---
 func get_action_space() -> Dictionary:
