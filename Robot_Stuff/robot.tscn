@@ -18,7 +18,7 @@ shape = SubResource("RectangleShape2D_e2o6t")
 
 [node name="AIController2D" type="Node2D" parent="."]
 script = ExtResource("3_hcdxu")
-onnx_model_path = "/Users/brendanaeria/kill-the-clanker/Trained_Models/KillTheClanker_Policy.onnx"
+onnx_model_path = "/Users/brendanaeria/kill-the-clanker/RL_Stuff/KillTheClanker_Policy7.onnx"
 
 [node name="RobotSpritesheet" type="Sprite2D" parent="."]
 position = Vector2(9.536743e-07, 2.3841858e-07)

@@ -67,7 +67,7 @@ max_saw_speed = 300.0
 script = ExtResource("5_7jktm")
 control_mode = 2
 action_repeat = 4
-onnx_model_path = "/Users/brendanaeria/kill-the-clanker/Trained_Models/KillTheClanker_Policy.onnx"
+onnx_model_path = "/Users/brendanaeria/kill-the-clanker/RL_Stuff/KillTheClanker_Policy7.onnx"
 
 [node name="Robot" parent="." instance=ExtResource("4_7jktm")]
 position = Vector2(0, 50.7511)

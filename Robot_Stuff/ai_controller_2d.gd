@@ -67,6 +67,7 @@ func get_obs() -> Dictionary:
 		#else:
 			#obs.append(0.0); obs.append(0.0); obs.append(0.0); obs.append(0.0)
 			#
+	print("OBSERVATION SHAPE: ", obs.size())
 	return {"obs": obs}
 
 func get_reward() -> float:
@@ -75,18 +76,14 @@ func get_reward() -> float:
 		reward_placeholder += 0.7
 	return reward_placeholder
 
-# --- 3. ACTIONS (REVISED) ---
 func get_action_space() -> Dictionary:
-	return {
-		# Discrete(3) -> 0: Left, 1: Neutral, 2: Right
+	var space = {
 		"move_x": {"size": 3, "action_type": "discrete"},
-		
-		# Discrete(2) -> 0: No Jump, 1: Jump
 		"jump":   {"size": 2, "action_type": "discrete"},
-		
-		# Discrete(9) -> 0: No Dash, 1-8: Specific Directions
 		"dash":   {"size": 9, "action_type": "discrete"}
 	}
+	print("ACTION SPACE SIZE: ", space.size(), " KEYS: ", space.keys())
+	return space
 
 func set_action(action) -> void:
 	# 1. Handle Movement (Discrete Arrow Keys)
