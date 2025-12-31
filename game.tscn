@@ -65,11 +65,13 @@ max_saw_speed = 300.0
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("5_7jktm")
-control_mode = 0
 action_repeat = 4
+speed_up = 20.0
 
 [node name="Robot" parent="." instance=ExtResource("4_7jktm")]
 position = Vector2(0, 50.7511)
+player_control = false
+grid_radius = 5
 
 [node name="KtcBackground" type="Sprite2D" parent="."]
 modulate = Color(0.39011964, 0.38605505, 0.4917335, 1)

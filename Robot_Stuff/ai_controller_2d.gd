@@ -72,7 +72,7 @@ func get_obs() -> Dictionary:
 func get_reward() -> float:
 	var reward = 1.0
 	if player.can_dash:
-		reward += 0.2
+		reward += 0.7
 	return reward
 
 # --- 3. ACTIONS (REVISED) ---
@@ -125,13 +125,13 @@ func set_action(action) -> void:
 func _physics_process(_delta):
 	queue_redraw()
 
-func _draw():
-	for ray in raycast_container.get_children():
-		if ray is RayCast2D:
-			var start = to_local(ray.global_position)
-			var end = to_local(ray.global_position + ray.target_position)
-			var color = Color.BLUE
-			if ray.is_colliding():
-				end = to_local(ray.get_collision_point())
-				color = Color.GREEN
-			draw_line(start, end, color, 2.0)
+#func _draw():
+	#for ray in raycast_container.get_children():
+		#if ray is RayCast2D:
+			#var start = to_local(ray.global_position)
+			#var end = to_local(ray.global_position + ray.target_position)
+			#var color = Color.BLUE
+			#if ray.is_colliding():
+				#end = to_local(ray.get_collision_point())
+				#color = Color.GREEN
+			#draw_line(start, end, color, 2.0)

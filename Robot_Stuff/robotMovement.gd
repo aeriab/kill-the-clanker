@@ -324,7 +324,18 @@ func _draw():
 	# OPTIONAL: Draw a crosshair at the exact center so you can align it
 	draw_line(Vector2(-10, 0), Vector2(10, 0), Color.GREEN, 2.0)
 	draw_line(Vector2(0, -10), Vector2(0, 10), Color.GREEN, 2.0)
+	
+	for ray in raycast_container.get_children():
+		if ray is RayCast2D:
+			var start = to_local(ray.global_position)
+			var end = to_local(ray.global_position + ray.target_position)
+			var color = Color.BLUE
+			if ray.is_colliding():
+				end = to_local(ray.get_collision_point())
+				color = Color.GREEN
+			draw_line(start, end, color, 2.0)
 
+@onready var raycast_container: Node2D = $RayCastContainer
 
 
 
