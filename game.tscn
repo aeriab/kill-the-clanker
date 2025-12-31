@@ -4,9 +4,9 @@
 [ext_resource type="Texture2D" uid="uid://c3wdgeacvmlsl" path="res://Environment_Stuff/Platform_Stuff/darkPillar.png" id="1_eow3j"]
 [ext_resource type="PackedScene" uid="uid://d1v1vji46esks" path="res://Robot_Stuff/robot.tscn" id="4_7jktm"]
 [ext_resource type="Script" uid="uid://c66u4wpa87wol" path="res://Environment_Stuff/Hazard_Stuff/Missile_Stuff/missile_handler.gd" id="4_fc0e3"]
+[ext_resource type="Script" uid="uid://dyhi6wsyvbp8y" path="res://Environment_Stuff/Hazard_Stuff/Saw_Stuff/saw_handler.gd" id="4_j5wjh"]
 [ext_resource type="Script" uid="uid://bmaifkhwsldkj" path="res://addons/godot_rl_agents/sync.gd" id="5_7jktm"]
 [ext_resource type="Texture2D" uid="uid://b273dintn43ju" path="res://Environment_Stuff/KTC-Background.png" id="6_ryrav"]
-[ext_resource type="Texture2D" uid="uid://b721ibuu4urxj" path="res://Environment_Stuff/Hazard_Stuff/Saw_Stuff/SMB_SawBlade.png" id="7_j5wjh"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_feb5d"]
 size = Vector2(15.995031, 63.94689)
@@ -52,15 +52,24 @@ offset = Vector2(-8, 0)
 [node name="MissileHandler" type="Node2D" parent="." groups=["spawners"]]
 script = ExtResource("4_fc0e3")
 automatic_missiles = true
+off_screen_margin = 1000.0
+min_missile_speed = 300.0
+max_missile_speed = 600.0
+
+[node name="SawHandler" type="Node2D" parent="." groups=["spawners"]]
+script = ExtResource("4_j5wjh")
+automatic_saws = true
+off_screen_margin = 1000.0
+min_saw_speed = 200.0
+max_saw_speed = 300.0
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("5_7jktm")
+control_mode = 0
 action_repeat = 4
-speed_up = 20.0
 
 [node name="Robot" parent="." instance=ExtResource("4_7jktm")]
 position = Vector2(0, 50.7511)
-player_control = false
 
 [node name="KtcBackground" type="Sprite2D" parent="."]
 modulate = Color(0.39011964, 0.38605505, 0.4917335, 1)
@@ -68,7 +77,3 @@ z_index = -50
 position = Vector2(0, 246.69043)
 scale = Vector2(4, 4)
 texture = ExtResource("6_ryrav")
-
-[node name="SmbSawBlade" type="Sprite2D" parent="."]
-position = Vector2(434.53973, -218.22041)
-texture = ExtResource("7_j5wjh")

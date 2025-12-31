@@ -40,10 +40,20 @@ var input_jump_held = false
 var input_dash = false
 
 func _ready():
+	# Calculate grid dimensions once
+	grid_width = (grid_radius * 2) + 1
+	sensor_array.resize(grid_width * grid_width)
+	sensor_array.fill(0.0)
+	
 	start_position = global_position
 	last_position = global_position 
 
 func _physics_process(delta):
+	
+	if debug_view:
+		get_grid_observation()
+		queue_redraw()
+	
 	# 1. AI RESET HANDLING
 	if ai_controller and ai_controller.needs_reset:
 		ai_controller.reset() 
@@ -215,6 +225,113 @@ func game_over():
 	else:
 		reset_player()
 
+
+
+###########################################################################################################################
+# --- SENSOR SETTINGS ---
+@export_group("AI Perception")
+@export var debug_view: bool = true   # Toggle this to see the grid
+@export var grid_radius: int = 5      # 5 cells left/right/up/down (11x11 total)
+@export var cell_size: float = 40.0   # How big one "pixel" of the grid is in world space
+
+# --- OFFSET SETTINGS (NEW) ---
+# Shift (20, 20) to center the player in the tile.
+# Shift (20, 80) to move the player DOWN 2 tiles (so AI sees more above).
+@export var grid_center_offset: Vector2 = Vector2(20, 60)
+
+
+# Data container
+var sensor_array: Array = []
+var grid_width: int = 0
+
+
+# ---------------------------------------------------------
+# 1. THE SENSOR LOGIC
+# ---------------------------------------------------------
+func get_grid_observation() -> Array:
+	sensor_array.fill(0.0)
+	
+	# 1. CALCULATE GRID ORIGIN (World Space)
+	# This is the top-left corner of the entire grid in the game world
+	var total_size = grid_width * cell_size
+	var grid_origin = global_position - Vector2(total_size / 2.0, total_size / 2.0)
+	
+	# Apply the manual offset (Centering + Vertical Bias)
+	# We SUBTRACT the offset to move the grid "up/left" relative to player
+	# effectively moving the player "down/right" inside the grid.
+	grid_origin += (Vector2(cell_size/2.0, cell_size/2.0) - grid_center_offset)
+
+	# --- PHASE 2: SCAN HAZARDS ---
+	# We pass the 'grid_origin' so hazards can be mapped relative to it
+	
+	# Scan Missiles (Small Radius)
+	for m in get_tree().get_nodes_in_group("missiles"):
+		_map_object_to_grid(m, 0.5, 10.0, grid_origin) 
+
+	# Scan Saws (Large Radius)
+	for s in get_tree().get_nodes_in_group("saws"):
+		_map_object_to_grid(s, 1.0, 25.0, grid_origin)
+		
+	return sensor_array
+
+func _map_object_to_grid(obj: Node2D, value: float, obj_radius: float, grid_origin: Vector2):
+	# Calculate position relative to the GRID ORIGIN (Top-Left), not the player
+	var pos_in_grid = obj.global_position - grid_origin
+	
+	# Calculate the bounds of the object in "Grid Coordinates"
+	var min_x = floor((pos_in_grid.x - obj_radius) / cell_size)
+	var max_x = floor((pos_in_grid.x + obj_radius) / cell_size)
+	var min_y = floor((pos_in_grid.y - obj_radius) / cell_size)
+	var max_y = floor((pos_in_grid.y + obj_radius) / cell_size)
+
+	# Loop through the affected cells
+	for y in range(min_y, max_y + 1):
+		for x in range(min_x, max_x + 1):
+			if x >= 0 and x < grid_width and y >= 0 and y < grid_width:
+				var index = (y * grid_width) + x
+				if value > sensor_array[index]:
+					sensor_array[index] = value
+
+# ---------------------------------------------------------
+# 2. THE VISUALIZATION
+# ---------------------------------------------------------
+func _draw():
+	if not debug_view: return
+	
+	# Re-calculate origin for drawing (Must match the Logic above exactly!)
+	var total_size = grid_width * cell_size
+	# We calculate the local offset from the player (0,0) to the grid top-left
+	var local_origin = -Vector2(total_size / 2.0, total_size / 2.0)
+	local_origin += (Vector2(cell_size/2.0, cell_size/2.0) - grid_center_offset)
+	
+	for y in range(grid_width):
+		for x in range(grid_width):
+			var index = (y * grid_width) + x
+			var cell_value = sensor_array[index]
+			
+			var cell_pos = local_origin + Vector2(x * cell_size, y * cell_size)
+			var rect = Rect2(cell_pos, Vector2(cell_size, cell_size))
+			
+			if cell_value == 0.0:
+				draw_rect(rect, Color(1, 1, 1, 0.1), false, 1.0)
+			elif cell_value == 0.3: # Platform
+				draw_rect(rect, Color(0, 0.6, 1.0, 0.5), true)
+			elif cell_value == 0.5: # Missile
+				draw_rect(rect, Color(1, 0.5, 0, 0.5), true)
+			elif cell_value == 1.0: # Saw
+				draw_rect(rect, Color(1, 0, 0, 0.5), true)
+				
+	# OPTIONAL: Draw a crosshair at the exact center so you can align it
+	draw_line(Vector2(-10, 0), Vector2(10, 0), Color.GREEN, 2.0)
+	draw_line(Vector2(0, -10), Vector2(0, 10), Color.GREEN, 2.0)
+
+
+
+
+
+
+
+
 func reset_player():
 	global_position = start_position
 	last_position = start_position 
@@ -226,3 +343,4 @@ func reset_player():
 	
 	get_tree().call_group("spawners", "reset_difficulty")
 	get_tree().call_group("missiles", "queue_free")
+	get_tree().call_group("saws", "queue_free")

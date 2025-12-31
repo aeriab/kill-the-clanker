@@ -1,13 +1,7 @@
-[gd_scene load_steps=16 format=3 uid="uid://byf4ceiehxix5"]
+[gd_scene load_steps=13 format=3 uid="uid://d4b2k0syfy8l0"]
 
-[ext_resource type="Texture2D" uid="uid://cr3w8hrwyol7d" path="res://Environment_Stuff/Hazard_Stuff/Missile_Stuff/cartoon-missile.png" id="1_8oxxh"]
-[ext_resource type="Script" uid="uid://btuxvlhrb7rrq" path="res://Environment_Stuff/Hazard_Stuff/Missile_Stuff/missile.gd" id="1_s4iwo"]
-[ext_resource type="Texture2D" uid="uid://byvwd6gg1ggsm" path="res://Environment_Stuff/Hazard_Stuff/smoke_spritesheet1.png" id="3_d56mj"]
-[ext_resource type="Script" uid="uid://dlk82nccdyle3" path="res://Environment_Stuff/Hazard_Stuff/Missile_Stuff/smoke_trail.gd" id="4_d56mj"]
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8oxxh"]
-radius = 9.530619
-height = 54.974987
+[ext_resource type="Texture2D" uid="uid://byvwd6gg1ggsm" path="res://Environment_Stuff/Hazard_Stuff/smoke_spritesheet1.png" id="1_4k2eg"]
+[ext_resource type="Script" uid="uid://dd7hosvc5sels" path="res://Environment_Stuff/Hazard_Stuff/debris.gd" id="2_mguek"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_2l8jj"]
 particles_animation = true
@@ -49,41 +43,28 @@ lifetime_randomness = 1.0
 particle_flag_disable_z = true
 angle_min = -179.99998
 angle_max = 180.00002
-spread = 0.0
+spread = 180.0
 initial_velocity_min = 100.0
 initial_velocity_max = 250.0
 angular_velocity_min = -180.00002
 angular_velocity_max = 179.99998
 gravity = Vector3(0, 3, 0)
-scale_min = 0.19999999
-scale_max = 0.5
+scale_min = 0.5
+scale_max = 1.5
 scale_curve = SubResource("CurveTexture_7ub36")
 color_ramp = SubResource("GradientTexture1D_7ub36")
 alpha_curve = SubResource("CurveTexture_2l8jj")
 hue_variation_curve = SubResource("CurveTexture_4507v")
 anim_offset_max = 0.5
 
-[node name="Missile" type="Area2D" groups=["hazards", "missiles"]]
-collision_layer = 4
-collision_mask = 7
-script = ExtResource("1_s4iwo")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-rotation = 1.5707964
-shape = SubResource("CapsuleShape2D_8oxxh")
-
-[node name="CartoonMissile" type="Sprite2D" parent="."]
-z_index = 1
-scale = Vector2(0.2, 0.2)
-texture = ExtResource("1_8oxxh")
-
-[node name="SmokeTrail" type="GPUParticles2D" parent="."]
+[node name="Debris" type="GPUParticles2D"]
 material = SubResource("CanvasItemMaterial_2l8jj")
-position = Vector2(-25, 0)
-rotation = -3.1415927
+emitting = false
 amount = 20
-texture = ExtResource("3_d56mj")
-lifetime = 0.4
+texture = ExtResource("1_4k2eg")
+lifetime = 0.8
+one_shot = true
+explosiveness = 0.95
 randomness = 1.0
 process_material = SubResource("ParticleProcessMaterial_7ub36")
-script = ExtResource("4_d56mj")
+script = ExtResource("2_mguek")

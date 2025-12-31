@@ -2,6 +2,7 @@ extends AIController2D
 
 @onready var player = get_parent()
 @onready var raycast_container = $"../RayCastContainer"
+#@onready var raycast_container: Node2D = $"../NewRayCastContainer"
 
 # Define the 8 Dash Directions explicitly for easy mapping
 # Godot 2D: Up is (0, -1), Down is (0, 1)
@@ -28,6 +29,10 @@ func get_obs() -> Dictionary:
 	obs.append(1.0 if player.is_on_floor() else 0.0)
 	obs.append(1.0 if player.can_dash else 0.0)
 	
+	
+	obs.append_array(player.get_grid_observation())
+	
+	
 	# --- 2. EXTEROCEPTION (Walls) ---
 	for ray in raycast_container.get_children():
 		if ray is RayCast2D:
@@ -38,30 +43,30 @@ func get_obs() -> Dictionary:
 				obs.append(1.0 - (dist / max_len))
 			else:
 				obs.append(0.0)
-	
-	# --- 3. OBJECT TRACKING (Missiles) ---
-	var missiles = get_tree().get_nodes_in_group("missiles")
-	missiles.sort_custom(func(a, b): 
-		return a.global_position.distance_squared_to(player.global_position) < b.global_position.distance_squared_to(player.global_position)
-	)
-	
-	var max_targets = 12
-	var sensing_range = 1000.0 
-	
-	for i in range(max_targets):
-		if i < missiles.size() and is_instance_valid(missiles[i]):
-			var m = missiles[i]
-			var rel_pos = m.global_position - player.global_position
-			obs.append(clamp(rel_pos.x / sensing_range, -1.0, 1.0))
-			obs.append(clamp(rel_pos.y / sensing_range, -1.0, 1.0))
-			
-			var m_vel = Vector2.ZERO
-			if "velocity" in m: m_vel = m.velocity
-			obs.append(clamp((m_vel.x) / 1000.0, -1.0, 1.0))
-			obs.append(clamp((m_vel.y) / 1000.0, -1.0, 1.0))
-		else:
-			obs.append(0.0); obs.append(0.0); obs.append(0.0); obs.append(0.0)
-			
+	#
+	## --- 3. OBJECT TRACKING (Missiles) ---
+	#var missiles = get_tree().get_nodes_in_group("missiles")
+	#missiles.sort_custom(func(a, b): 
+		#return a.global_position.distance_squared_to(player.global_position) < b.global_position.distance_squared_to(player.global_position)
+	#)
+	#
+	#var max_targets = 12
+	#var sensing_range = 1000.0 
+	#
+	#for i in range(max_targets):
+		#if i < missiles.size() and is_instance_valid(missiles[i]):
+			#var m = missiles[i]
+			#var rel_pos = m.global_position - player.global_position
+			#obs.append(clamp(rel_pos.x / sensing_range, -1.0, 1.0))
+			#obs.append(clamp(rel_pos.y / sensing_range, -1.0, 1.0))
+			#
+			#var m_vel = Vector2.ZERO
+			#if "velocity" in m: m_vel = m.velocity
+			#obs.append(clamp((m_vel.x) / 1000.0, -1.0, 1.0))
+			#obs.append(clamp((m_vel.y) / 1000.0, -1.0, 1.0))
+		#else:
+			#obs.append(0.0); obs.append(0.0); obs.append(0.0); obs.append(0.0)
+			#
 	return {"obs": obs}
 
 func get_reward() -> float:

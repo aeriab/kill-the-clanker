@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://bvpr7g3244d8g"]
+
+[ext_resource type="Script" uid="uid://c35xj5wj8b41b" path="res://Environment_Stuff/Hazard_Stuff/Saw_Stuff/saw_blade.gd" id="1_c8gdi"]
+[ext_resource type="Texture2D" uid="uid://b721ibuu4urxj" path="res://Environment_Stuff/Hazard_Stuff/Saw_Stuff/SMB_SawBlade.png" id="1_qb17l"]
+[ext_resource type="Script" uid="uid://v7yp58sar7qd" path="res://Environment_Stuff/Hazard_Stuff/Saw_Stuff/smb_saw_blade.gd" id="3_mgv4c"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_c8gdi"]
+radius = 28.0
+
+[node name="saw_blade" type="Area2D" groups=["hazards", "saws"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_c8gdi")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_c8gdi")
+
+[node name="SmbSawBlade" type="Sprite2D" parent="."]
+scale = Vector2(0.19, 0.19)
+texture = ExtResource("1_qb17l")
+script = ExtResource("3_mgv4c")

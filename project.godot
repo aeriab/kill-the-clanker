@@ -29,6 +29,8 @@ player=""
 missiles=""
 spawners=""
 platform=""
+saws=""
+hazards=""
 
 [input]
 
