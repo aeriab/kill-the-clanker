@@ -70,11 +70,30 @@ func get_obs() -> Dictionary:
 	print("OBSERVATION SHAPE: ", obs.size())
 	return {"obs": obs}
 
+
 func get_reward() -> float:
-	var reward_placeholder = 1.0
+	var reward_var = 0.0
+	# 1. Survival Reward (Keep this small per frame)
+	reward_var += 0.1 
+
+	# 2. Conservation Reward (Smaller than survival)
 	if player.can_dash:
-		reward_placeholder += 0.7
-	return reward_placeholder
+		reward_var += 0.05
+		
+	# 3. Center Bias (Optional: Keeps them from camping edges)
+	# Normalized distance from center (0.0 to 1.0 approx)
+	var dist_from_center = player.global_position.distance_to(player.start_position)
+	if dist_from_center < 300.0:
+		reward_var += 0.05
+		
+	return reward_var
+
+#func get_reward() -> float:
+	#var reward_placeholder = 1.0
+	#if player.can_dash:
+		#reward_placeholder += 0.7
+	#return reward_placeholder
+
 
 func get_action_space() -> Dictionary:
 	var space = {
