@@ -1,25 +1,19 @@
 extends AIController2D
 
+# --- DEBUG SETTINGS ---
+@export var debug_mode: bool = true
+@export var debug_interval_frames: int = 60 
+var _frame_counter: int = 0
+
 @onready var player = get_parent()
 @onready var raycast_container = $"../RayCastContainer"
-#@onready var raycast_container: Node2D = $"../NewRayCastContainer"
-
-# Define the 8 Dash Directions explicitly for easy mapping
-# Godot 2D: Up is (0, -1), Down is (0, 1)
-const DASH_DIRECTIONS = [
-	Vector2.ZERO,      # 0: No Dash
-	Vector2(0, -1),    # 1: Up
-	Vector2(1, -1),    # 2: Up-Right
-	Vector2(1, 0),     # 3: Right
-	Vector2(1, 1),     # 4: Down-Right
-	Vector2(0, 1),     # 5: Down
-	Vector2(-1, 1),    # 6: Down-Left
-	Vector2(-1, 0),    # 7: Left
-	Vector2(-1, -1)    # 8: Up-Left
-]
 
 func get_obs() -> Dictionary:
 	var obs = []
+	
+	# Raw values for debug printing
+	var raw_vel = player.velocity
+	var raw_pos = player.global_position
 	
 	# --- 1. PROPRIOCEPTION ---
 	obs.append(clamp(player.velocity.x / 1000.0, -1.0, 1.0))
@@ -29,11 +23,13 @@ func get_obs() -> Dictionary:
 	obs.append(1.0 if player.is_on_floor() else 0.0)
 	obs.append(1.0 if player.can_dash else 0.0)
 	
-	
-	obs.append_array(player.get_grid_observation())
-	
+	var grid_obs = player.get_grid_observation()
+	obs.append_array(grid_obs)
 	
 	# --- 2. EXTEROCEPTION (Walls) ---
+	var ray_hits = [] 
+	var ray_index = 0
+	
 	for ray in raycast_container.get_children():
 		if ray is RayCast2D:
 			ray.force_raycast_update()
@@ -41,113 +37,82 @@ func get_obs() -> Dictionary:
 				var dist = ray.global_position.distance_to(ray.get_collision_point())
 				var max_len = ray.target_position.length()
 				obs.append(1.0 - (dist / max_len))
+				
+				if debug_mode and _frame_counter % debug_interval_frames == 0:
+					ray_hits.append("Ray %d: %.1f px" % [ray_index, dist])
 			else:
 				obs.append(0.0)
-	#
-	## --- 3. OBJECT TRACKING (Missiles) ---
-	#var missiles = get_tree().get_nodes_in_group("missiles")
-	#missiles.sort_custom(func(a, b): 
-		#return a.global_position.distance_squared_to(player.global_position) < b.global_position.distance_squared_to(player.global_position)
-	#)
-	#
-	#var max_targets = 12
-	#var sensing_range = 1000.0 
-	#
-	#for i in range(max_targets):
-		#if i < missiles.size() and is_instance_valid(missiles[i]):
-			#var m = missiles[i]
-			#var rel_pos = m.global_position - player.global_position
-			#obs.append(clamp(rel_pos.x / sensing_range, -1.0, 1.0))
-			#obs.append(clamp(rel_pos.y / sensing_range, -1.0, 1.0))
-			#
-			#var m_vel = Vector2.ZERO
-			#if "velocity" in m: m_vel = m.velocity
-			#obs.append(clamp((m_vel.x) / 1000.0, -1.0, 1.0))
-			#obs.append(clamp((m_vel.y) / 1000.0, -1.0, 1.0))
-		#else:
-			#obs.append(0.0); obs.append(0.0); obs.append(0.0); obs.append(0.0)
-			#
-	print("OBSERVATION SHAPE: ", obs.size())
-	return {"obs": obs}
+			ray_index += 1
 
+	# --- DEBUG PRINT SNAPSHOT ---
+	if debug_mode and _frame_counter % debug_interval_frames == 0:
+		print("\n--- AI BRAIN SNAPSHOT (Frame %d) ---" % _frame_counter)
+		print("SENSES:")
+		print(" > Velocity: ", raw_vel)
+		print(" > Position: ", raw_pos)
+		print(" > Can Dash: ", player.can_dash)
+		print(" > Raycasts Hit: ", ray_hits)
+		var active_cells = grid_obs.count(1.0) 
+		print(" > Grid Active Cells: ", active_cells) 
+		print(" > TOTAL OBS SIZE: ", obs.size())
+
+	return {"obs": obs}
 
 func get_reward() -> float:
 	var reward_var = 0.0
-	# 1. Survival Reward (Keep this small per frame)
+	# 1. Survival Reward
 	reward_var += 0.1 
 
-	# 2. Conservation Reward (Smaller than survival)
+	# 2. Conservation Reward
 	if player.can_dash:
 		reward_var += 0.05
 		
-	# 3. Center Bias (Optional: Keeps them from camping edges)
-	# Normalized distance from center (0.0 to 1.0 approx)
+	# 3. Center Bias
 	var dist_from_center = player.global_position.distance_to(player.start_position)
 	if dist_from_center < 300.0:
 		reward_var += 0.05
 		
 	return reward_var
 
-#func get_reward() -> float:
-	#var reward_placeholder = 1.0
-	#if player.can_dash:
-		#reward_placeholder += 0.7
-	#return reward_placeholder
-
-
+# --- RESTORED CONTINUOUS ACTION SPACE ---
 func get_action_space() -> Dictionary:
-	var space = {
-		"move_x": {"size": 3, "action_type": "discrete"},
-		"jump":   {"size": 2, "action_type": "discrete"},
-		"dash":   {"size": 9, "action_type": "discrete"}
+	return {
+		# Continuous: Size 1 means "1 float value" (e.g., 0.5)
+		"move_x": {"size": 1, "action_type": "continuous"}, 
+		"move_y": {"size": 1, "action_type": "continuous"}, 
+		
+		# Discrete: Size 2 means "2 choices" (0 or 1)
+		"jump":   {"size": 1, "action_type": "discrete"},
+		"dash":   {"size": 1, "action_type": "discrete"} 
 	}
-	print("ACTION SPACE SIZE: ", space.size(), " KEYS: ", space.keys())
-	return space
 
 func set_action(action) -> void:
-	# 1. Handle Movement (Discrete Arrow Keys)
-	var move_idx = action["move_x"]
-	match move_idx:
-		0: player.input_x = -1.0 # Left
-		1: player.input_x = 0.0  # Neutral
-		2: player.input_x = 1.0  # Right
+	_frame_counter += 1
 	
-	# Reset Y input (only used for dashing now)
-	player.input_y = 0.0
+	# Extract Raw Float Values (Continuous returns an array like [0.5])
+	var raw_x = action["move_x"][0]
+	var raw_y = action["move_y"][0]
+	var jump_act = action["jump"]
+	var dash_act = action["dash"]
 
-	# 2. Handle Jump
-	player.input_jump_pressed = action["jump"] == 1
-	player.input_jump_held = action["jump"] == 1 
+	# --- RESTORED LOGIC FROM OLD CODE ---
+	# This creates a "deadzone". If output is weak (< 0.5), we stop. 
+	# If strong (> 0.5), we snap to 1.0 or -1.0.
+	player.input_x = 0.0 if abs(raw_x) < 0.5 else sign(raw_x)
+	player.input_y = 0.0 if abs(raw_y) < 0.5 else sign(raw_y)
 
-	# 3. Handle Directional Dash
-	var dash_idx = action["dash"]
-	
-	if dash_idx > 0:
-		# If AI wants to dash, we ACTIVATE dash and OVERRIDE inputs
-		player.input_dash = true
-		
-		var direction = DASH_DIRECTIONS[dash_idx]
-		
-		# Force the player inputs to match the dash direction
-		# This ensures the game engine dashes where the AI intends, 
-		# ignoring the 'move_x' walking input for this frame.
-		player.input_x = direction.x
-		player.input_y = direction.y
-	else:
-		player.input_dash = false
+	player.input_jump_pressed = jump_act == 1
+	player.input_jump_held = jump_act == 1 
+	player.input_dash = dash_act == 1
 
+	# --- UPDATED DEBUG FOR CONTINUOUS ---
+	if debug_mode and _frame_counter % debug_interval_frames == 0:
+		print("INTENTIONS:")
+		print(" > Move X (Raw): %.2f -> Input: %.1f" % [raw_x, player.input_x])
+		print(" > Move Y (Raw): %.2f -> Input: %.1f" % [raw_y, player.input_y])
+		print(" > Actions: %s %s" % ["JUMP!" if jump_act else "...", "DASH!" if dash_act else "..."])
+		print("---------------------------------------")
 
-# --- DEBUG ---
+# --- DEBUG DRAWING ---
 func _physics_process(_delta):
 	queue_redraw()
-
-#func _draw():
-	#for ray in raycast_container.get_children():
-		#if ray is RayCast2D:
-			#var start = to_local(ray.global_position)
-			#var end = to_local(ray.global_position + ray.target_position)
-			#var color = Color.BLUE
-			#if ray.is_colliding():
-				#end = to_local(ray.get_collision_point())
-				#color = Color.GREEN
-			#draw_line(start, end, color, 2.0)

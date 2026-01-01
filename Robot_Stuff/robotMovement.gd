@@ -60,8 +60,7 @@ func _physics_process(delta):
 		reset_player()
 		return
 
-	# 2. UPDATE INPUTS
-	if player_control:
+	if player_control and ai_controller == null:
 		_get_player_input()
 
 	# 3. MOVEMENT LOGIC
