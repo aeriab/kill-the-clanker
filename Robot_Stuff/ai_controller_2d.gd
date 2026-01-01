@@ -59,20 +59,18 @@ func get_obs() -> Dictionary:
 	return {"obs": obs}
 
 func get_reward() -> float:
-	var reward_var = 0.0
-	# 1. Survival Reward
-	reward_var += 0.1 
-
-	# 2. Conservation Reward
+	var total_reward = reward
+	reward = 0.0
+	total_reward += 0.3
 	if player.can_dash:
-		reward_var += 0.05
-		
-	# 3. Center Bias
+		total_reward += 0.05
+	
 	var dist_from_center = player.global_position.distance_to(player.start_position)
-	if dist_from_center < 300.0:
-		reward_var += 0.05
-		
-	return reward_var
+	total_reward += 0.05 - (dist_from_center/2000.0)
+	
+	#print(" > CURRENT REWARD: %.2f" % total_reward)
+	
+	return total_reward
 
 # --- RESTORED CONTINUOUS ACTION SPACE ---
 func get_action_space() -> Dictionary:

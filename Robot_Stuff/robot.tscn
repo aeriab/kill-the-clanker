@@ -10,6 +10,7 @@ size = Vector2(35.28013, 56.270206)
 [node name="CharacterBody2D" type="CharacterBody2D" groups=["player"]]
 collision_mask = 7
 script = ExtResource("1_fqjym")
+debug_view = false
 grid_radius = 4
 cell_size = 55.0
 
@@ -19,6 +20,7 @@ shape = SubResource("RectangleShape2D_e2o6t")
 
 [node name="AIController2D" type="Node2D" parent="."]
 script = ExtResource("3_hcdxu")
+debug_mode = false
 
 [node name="RobotSpritesheet" type="Sprite2D" parent="."]
 position = Vector2(9.536743e-07, 2.3841858e-07)
